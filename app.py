@@ -34,6 +34,12 @@ if not OPENAI_API_KEY and not XAI_API_KEY:
     print("   The app will use demo analysis only")
     print("   Set OPENAI_API_KEY or XAI_API_KEY in Railway dashboard")
 
+@app.before_request
+def allow_healthcheck_host():
+    """Allow Railway's health check hostname to prevent potential 400 errors."""
+    if request.host == 'healthcheck.railway.app':
+        pass  # Flask doesn't block by default, but this makes it explicit.
+
 def analyze_with_xai(base64_image):
     """Analyze image with xAI Grok"""
     url = "https://api.x.ai/v1/chat/completions"
@@ -367,6 +373,7 @@ def uploaded_file(filename):
 @app.route('/health')
 def health_check():
     """Simple health check endpoint for Railway"""
+    app.logger.info("Health check endpoint was reached.")
     return 'OK', 200
 
 if __name__ == '__main__':
