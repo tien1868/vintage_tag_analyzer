@@ -366,8 +366,8 @@ def uploaded_file(filename):
 
 @app.route('/health')
 def health_check():
-    """Simple health check endpoint"""
-    return {"status": "healthy", "message": "Flask app is running"}
+    """Simple health check endpoint for Railway"""
+    return 'OK', 200
 
 if __name__ == '__main__':
     print("🎯 IMAGE ANALYZER WEB UI")
