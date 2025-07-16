@@ -1,5 +1,5 @@
-# Use Python 3.11 slim image with retry logic for network issues
-FROM python:3.11-slim
+# Alternative Dockerfile for Railway with better network handling
+FROM python:3.11-alpine
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -10,20 +10,17 @@ ENV FLASK_ENV=production
 # Set work directory
 WORKDIR /app
 
-# Install only essential system dependencies with retry
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install system dependencies (Alpine uses apk)
+RUN apk add --no-cache \
     gcc \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    musl-dev \
+    python3-dev
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies with retry and cache
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir --upgrade pip && \
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy only necessary application files
@@ -37,5 +34,5 @@ RUN mkdir -p uploads
 # Expose port
 EXPOSE 5000
 
-# Use gunicorn for production with optimized settings
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "--max-requests", "1000", "--max-requests-jitter", "100", "app:app"] 
+# Use gunicorn for production
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "app:app"] 
