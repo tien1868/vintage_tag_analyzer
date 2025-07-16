@@ -81,10 +81,15 @@ def analyze_with_xai(base64_image):
         else:
             print(f"❌ xAI: HTTP {response.status_code}")
             try:
+                # Try to parse JSON, but handle cases where it's not JSON
                 error_data = response.json()
-                error_message = error_data.get('error', {}).get('message', 'Unknown error') if isinstance(error_data, dict) else str(error_data)
-            except:
-                error_message = response.text if response.text else 'Unknown error'
+                if isinstance(error_data, dict):
+                    error_message = error_data.get('error', {}).get('message', str(error_data))
+                else:
+                    error_message = str(error_data)
+            except json.JSONDecodeError:
+                error_message = response.text if response.text else 'Unknown error with no body.'
+            
             print(f"❌ xAI Error: {error_message}")
             return {"success": False, "error": f"xAI API Error ({response.status_code}): {error_message}"}
             
