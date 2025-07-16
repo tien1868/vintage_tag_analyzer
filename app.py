@@ -28,6 +28,12 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 XAI_API_KEY = os.environ.get('XAI_API_KEY', '')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
+# Validate API keys for production
+if not OPENAI_API_KEY and not XAI_API_KEY:
+    print("⚠️  Warning: No API keys found in environment variables")
+    print("   The app will use demo analysis only")
+    print("   Set OPENAI_API_KEY or XAI_API_KEY in Railway dashboard")
+
 def analyze_with_xai(base64_image):
     """Analyze image with xAI Grok"""
     url = "https://api.x.ai/v1/chat/completions"
@@ -371,4 +377,4 @@ if __name__ == '__main__':
     print("=" * 50)
     # Use environment variable for port (Railway requirement)
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port) 
+    app.run(debug=False, host='0.0.0.0', port=port)  # Debug=False for production safety 
