@@ -19,9 +19,9 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Your API keys
-XAI_API_KEY = "xai-token-fz8KhJd2JiYKhMcL6Faa7MdH5g1uC6M72LHPuUb2SGqfQfhbLeTkC90uOohkXhYCFn8tRrDOuCLIDJA3"
-OPENAI_API_KEY = "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"
+# Get API keys from environment variables (Railway)
+XAI_API_KEY = os.environ.get('XAI_API_KEY', '')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 def analyze_with_xai(base64_image):
     """Analyze image with xAI Grok"""
