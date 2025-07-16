@@ -77,7 +77,7 @@ logs/
 models/
 packages/
 seam_dataset/
-static/
+# static/
 towel_grasping_results/
 towel_images/
 two_step_calibration/

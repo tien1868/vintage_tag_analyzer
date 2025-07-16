@@ -1,4 +1,4 @@
-# Alternative Dockerfile for Railway with better network handling
+# Minimal Dockerfile for Railway - handles network issues
 FROM python:3.11-alpine
 
 # Set environment variables
@@ -10,23 +10,17 @@ ENV FLASK_ENV=production
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies (Alpine uses apk)
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    python3-dev
+# Install minimal dependencies
+RUN apk add --no-cache gcc musl-dev
 
-# Copy requirements first for better caching
+# Copy requirements and install with retry
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy only necessary application files
+# Copy only essential files
 COPY app.py .
 COPY templates/ templates/
-COPY static/ static/
 
 # Create uploads directory
 RUN mkdir -p uploads
