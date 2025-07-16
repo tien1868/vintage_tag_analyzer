@@ -2,6 +2,7 @@
 """
 Image Analyzer Web UI
 Flask application with modern interface for military/vintage tag analysis
+Updated for Railway deployment with fallback HTML
 """
 
 from flask import Flask, render_template, request, jsonify, send_from_directory
