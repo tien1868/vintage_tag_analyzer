@@ -4,11 +4,10 @@ services:
     env: python
     pythonVersion: '3.11'
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn --timeout 120 --workers 2 app:app"
+    startCommand: "gunicorn --timeout 120 app:app"
+    healthCheckPath: /health
     envVars:
       - key: OPENAI_API_KEY
         sync: false
       - key: XAI_API_KEY
-        sync: false
-      - key: PYTHON_VERSION
-        value: '3.11' 
+        sync: false 
