@@ -1,3 +1,71 @@
-.venv
-checkpoints
-data
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large directories that aren't needed for the app
+sam2/
+dinov2/
+Depth-Anything/
+librealsense/
+PyKinect2/
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pkl
+
+# Development files
+*.md
+!README.md
+test_*.py
+*_test.py
+deployment_*.py
+check_*.py
+*.log
+
+# Temporary files
+uploads/*
+!uploads/.gitkeep
