@@ -1,4 +1,4 @@
-# Use Python 3.11 slim image for faster builds
+# Use Python 3.11 slim image with retry logic for network issues
 FROM python:3.11-slim
 
 # Set environment variables
@@ -10,8 +10,10 @@ ENV FLASK_ENV=production
 # Set work directory
 WORKDIR /app
 
-# Install only essential system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install only essential system dependencies with retry
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -19,8 +21,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies with optimizations
-RUN pip install --no-cache-dir --upgrade pip && \
+# Install Python dependencies with retry and cache
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy only necessary application files
