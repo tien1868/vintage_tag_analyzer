@@ -1,108 +1,156 @@
 # Railway Deployment Guide
 
-## 🚀 Quick Fix for Template Error
+## 🚀 Quick Deployment Steps
 
-The app now has a **fallback HTML** that will work even if templates fail to load. This should resolve the `TemplateNotFound` error.
+### 1. Test Locally First
+```bash
+# Test health endpoint
+python test_health_local.py
 
-## 📋 Deployment Checklist
+# Test gunicorn
+gunicorn --check-config app:app
 
-### 1. Verify GitHub Repository
-- ✅ Repository: `https://github.com/tien1868/vintage_tag_analyzer`
-- ✅ All files committed and pushed
-- ✅ Templates folder included
-- ✅ Fallback HTML implemented
-
-### 2. Railway Setup
-1. Go to [Railway Dashboard](https://railway.app/dashboard)
-2. Click "New Project"
-3. Select "Deploy from GitHub repo"
-4. Choose your repository: `tien1868/vintage_tag_analyzer`
-5. Click "Deploy"
-
-### 3. Environment Variables
-Add these in Railway dashboard:
-```
-OPENAI_API_KEY=your_openai_key_here
-XAI_API_KEY=your_xai_key_here
-FLASK_ENV=production
+# Test full startup
+gunicorn -b 0.0.0.0:5000 app:app
 ```
 
-### 4. Check Deployment Files
-Ensure these files are in your repository:
-- ✅ `app.py` (main Flask app)
-- ✅ `requirements.txt` (dependencies)
-- ✅ `Procfile` (deployment command)
-- ✅ `runtime.txt` (Python version)
-- ✅ `railway.json` (Railway config)
-- ✅ `templates/index.html` (template file)
+### 2. Push to GitHub
+```bash
+git add .
+git commit -m "Fix Railway deployment - health endpoint and nixpacks config"
+git push origin main
+```
 
-### 5. Manual Deployment Steps
+### 3. Railway Dashboard Setup
 
-If automatic deployment isn't working:
+#### Environment Variables
+Go to your Railway service → Variables and add:
+- `OPENAI_API_KEY`: `sk-proj-your-actual-key`
+- `XAI_API_KEY`: `xa-your-actual-key` (optional)
 
-1. **Clone fresh repository:**
-   ```bash
-   git clone https://github.com/tien1868/vintage_tag_analyzer.git
-   cd vintage_tag_analyzer
-   ```
+#### Health Check Settings
+- Service → Settings → Healthcheck
+- Path: `/health`
+- Timeout: 600s (10 minutes)
 
-2. **Verify files:**
-   ```bash
-   ls -la
-   # Should show: app.py, requirements.txt, Procfile, templates/
-   ```
+## 🔧 Configuration Files
 
-3. **Test locally:**
-   ```bash
-   pip install -r requirements.txt
-   python app.py
-   ```
+### railway.json
+```json
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "nixpacks"
+  },
+  "deploy": {
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 600,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5
+  }
+}
+```
 
-4. **Push to Railway:**
-   - Connect Railway to your GitHub repo
-   - Railway will auto-deploy on push
+### nixpacks.toml
+```toml
+[phases.setup]
+nixPkgs = ["python39", "python39Packages.pip"]
 
-## 🔧 Troubleshooting
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
 
-### If Railway shows "TemplateNotFound":
-- The fallback HTML should handle this
-- Check Railway logs for other errors
-- Verify all files are in the repository
+[phases.build]
+cmds = ["echo 'Build complete'"]
 
-### If deployment fails:
-1. Check Railway logs
-2. Verify environment variables
-3. Ensure all dependencies are in `requirements.txt`
+[start]
+cmd = "gunicorn -b 0.0.0.0:$PORT app:app"
+```
 
-### If app doesn't start:
-1. Check `Procfile` content
-2. Verify Python version in `runtime.txt`
-3. Check Railway logs for startup errors
+### Procfile
+```
+web: gunicorn -b 0.0.0.0:$PORT app:app
+```
 
-## 📱 Testing Your App
+## 🐛 Troubleshooting
 
-Once deployed, your app will be available at:
-`https://your-app-name.up.railway.app`
+### Health Check Fails
+1. **Check logs**: Railway → Deployments → Latest → Logs
+2. **Verify health endpoint**: Should return "OK" with 200 status
+3. **Test locally**: `curl http://localhost:5000/health`
 
-### Test the app:
-1. Upload an image
-2. Check if analysis works
-3. Verify both xAI and OpenAI fallbacks
+### Build Fails
+1. **Check requirements.txt**: All dependencies listed
+2. **Verify Python version**: Using Python 3.9 in nixpacks
+3. **Check file structure**: All files committed to git
 
-## 🆘 Still Having Issues?
+### App Won't Start
+1. **Check Procfile**: Correct gunicorn command
+2. **Verify app.py**: Has `if __name__ == '__main__'` block
+3. **Test locally**: `gunicorn -b 0.0.0.0:5000 app:app`
 
-1. **Check Railway logs** in the dashboard
-2. **Verify GitHub connection** in Railway
-3. **Test locally first** with `python app.py`
-4. **Check environment variables** are set correctly
+### Environment Variables
+1. **Check Railway dashboard**: Variables tab
+2. **Verify names**: `OPENAI_API_KEY`, `XAI_API_KEY`
+3. **Test locally**: Set env vars and run app
 
-## ✅ Success Indicators
+## 📊 Monitoring
 
-- ✅ App loads without template errors
-- ✅ File upload works
-- ✅ Image analysis returns results
-- ✅ Both AI providers work (with fallbacks)
+### Railway Dashboard
+- **Deployments**: Check build and deploy status
+- **Logs**: Real-time application logs
+- **Variables**: Environment variable management
+- **Settings**: Health check configuration
 
----
+### Health Check
+- **Path**: `/health`
+- **Expected Response**: "OK" with 200 status
+- **Timeout**: 600 seconds (10 minutes)
 
-**Need help?** Check Railway logs and GitHub repository status first! 
+## 🔄 Deployment Process
+
+1. **Push to GitHub**: Triggers automatic deployment
+2. **Build Phase**: nixpacks installs dependencies
+3. **Deploy Phase**: Starts gunicorn with app
+4. **Health Check**: Railway tests `/health` endpoint
+5. **Live**: App becomes available at Railway URL
+
+## 🎯 Success Indicators
+
+✅ **Build completes** in ~20-30 seconds  
+✅ **Health check passes** on first attempt  
+✅ **App responds** to web requests  
+✅ **Environment variables** loaded correctly  
+✅ **No restart loops** in deployment logs  
+
+## 🚨 Common Issues
+
+### "Service Unavailable"
+- Health check failing
+- App not starting properly
+- Environment variables missing
+
+### "Build Timeout"
+- Large dependencies
+- Network issues
+- Complex build process
+
+### "Port Already in Use"
+- Multiple processes
+- Wrong port configuration
+- Development server conflicts
+
+## 📞 Support
+
+If deployment still fails:
+1. Check Railway logs for specific errors
+2. Test locally with `python test_health_local.py`
+3. Verify all configuration files are correct
+4. Ensure environment variables are set in Railway dashboard
+
+## 🎉 Success!
+
+Once deployed successfully:
+- Share the Railway URL with your friend
+- The app will be available 24/7
+- Monitor usage in Railway dashboard
+- Add billing if needed for higher usage 
