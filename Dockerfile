@@ -18,8 +18,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy only essential files
+# Copy application files
 COPY app.py .
+COPY start.py .
 COPY templates/ templates/
 
 # Create uploads directory
@@ -28,5 +29,5 @@ RUN mkdir -p uploads
 # Expose port
 EXPOSE 5000
 
-# Use gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "app:app"] 
+# Use our startup script
+CMD ["python", "start.py"] 
