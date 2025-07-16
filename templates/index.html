@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Military & Vintage Tag Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .demo-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .analysis-content {
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #d63031;
+            margin-top: 20px;
+        }
+
+        .success {
+            background: #e6ffe6;
+            color: #00b894;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00b894;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-section, .results-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Military & Vintage Tag Analyzer</h1>
+            <p>AI-powered analysis of military tags, vintage items, and collectibles</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📸 Upload Image</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-hint">Supports JPG, PNG, JPEG (max 16MB)</div>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+                
+                <img id="previewImage" class="preview-image" style="display: none;">
+                
+                <button id="analyzeBtn" class="analyze-btn" disabled>
+                    🤖 Analyze Image
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header">
+                    <div class="results-title">📊 Analysis Results</div>
+                    <div style="display: flex; gap: 10px;">
+                        <div id="providerBadge" class="demo-badge" style="display: none; background: #667eea;">xAI</div>
+                        <div id="demoBadge" class="demo-badge" style="display: none;">DEMO</div>
+                    </div>
+                </div>
+                
+                <div id="resultsContent">
+                    <div class="loading" id="loadingMessage" style="display: none;">
+                        <div class="spinner"></div>
+                        <div>Analyzing image with AI...</div>
+                        <div style="font-size: 0.9rem; margin-top: 10px; color: #999;">
+                            This may take a few seconds
+                        </div>
+                    </div>
+                    
+                    <div id="initialMessage">
+                        <div style="text-align: center; color: #666; padding: 40px;">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">🔍</div>
+                            <div style="font-size: 1.2rem; margin-bottom: 10px;">Ready to analyze</div>
+                            <div style="font-size: 0.9rem; color: #999;">
+                                Upload an image to get started
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by xAI Grok & OpenAI GPT-4o • Built for military and vintage item analysis</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultsContent = document.getElementById('resultsContent');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const initialMessage = document.getElementById('initialMessage');
+        const demoBadge = document.getElementById('demoBadge');
+        const providerBadge = document.getElementById('providerBadge');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Analyze button click
+        analyzeBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Show loading
+            loadingMessage.style.display = 'block';
+            initialMessage.style.display = 'none';
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '⏳ Analyzing...';
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                loadingMessage.style.display = 'none';
+
+                if (result.success) {
+                    // Show results
+                    resultsContent.innerHTML = `
+                        <div class="analysis-content">${result.result}</div>
+                        ${result.demo ? '<div class="success">💡 This is a demo analysis. Add billing to your OpenAI account for real AI analysis.</div>' : ''}
+                    `;
+                    
+                    // Show provider badge
+                    if (result.provider === 'xAI') {
+                        providerBadge.textContent = 'xAI';
+                        providerBadge.style.display = 'block';
+                        demoBadge.style.display = 'none';
+                    } else if (result.provider === 'OpenAI') {
+                        providerBadge.textContent = 'OpenAI';
+                        providerBadge.style.display = 'block';
+                        demoBadge.style.display = 'none';
+                    } else {
+                        providerBadge.style.display = 'none';
+                        demoBadge.style.display = result.demo ? 'block' : 'none';
+                    }
+                } else {
+                    // Show error
+                    resultsContent.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Analysis Failed</strong><br>
+                            ${result.error}
+                        </div>
+                    `;
+                    demoBadge.style.display = 'none';
+                    providerBadge.style.display = 'none';
+                }
+
+            } catch (error) {
+                loadingMessage.style.display = 'none';
+                resultsContent.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error</strong><br>
+                        Failed to connect to the server. Please try again.
+                    </div>
+                `;
+                demoBadge.style.display = 'none';
+                providerBadge.style.display = 'none';
+            }
+
+            // Reset button
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = '🤖 Analyze Image';
+        });
+    </script>
+</body>
+</html> 
