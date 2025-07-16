@@ -15,8 +15,8 @@ In your Railway dashboard:
 3. **Add these correct variables:**
 
 ```
-OPENAI_API_KEY=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
-XAI_API_KEY=xai-token-fz8KhJd2JiYKhMcL6Faa7MdH5g1uC6M72LHPuUb2SGqfQfhbLeTkC90uOohkXhYCFn8tRrDOuCLIDJA3
+OPENAI_API_KEY=your_openai_api_key_here
+XAI_API_KEY=your_xai_api_key_here
 FLASK_ENV=production
 ```
 
