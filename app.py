@@ -17,6 +17,10 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
+# Set Flask environment for Railway
+app.config['FLASK_ENV'] = 'production'
+app.config['FLASK_DEBUG'] = False
+
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
