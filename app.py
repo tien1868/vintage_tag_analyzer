@@ -381,6 +381,25 @@ def health_check():
     app.logger.info("Health check endpoint was reached.")
     return 'OK', 200
 
+@app.route('/debug-keys')
+def debug_keys():
+    """A secure debugging endpoint to verify API keys."""
+    def get_key_info(key):
+        if not key:
+            return "Key is NOT SET."
+        if len(key) < 8:
+            return f"Key is too short to be valid. Length: {len(key)}."
+        return f"Key detected. Starts with: {key[:5]}..., Ends with: ...{key[-4:]}, Length: {len(key)}"
+
+    openai_info = get_key_info(OPENAI_API_KEY)
+    xai_info = get_key_info(XAI_API_KEY)
+    
+    return jsonify({
+        "openai_key_status": openai_info,
+        "xai_key_status": xai_info,
+        "instructions": "Compare the partial keys and lengths above with your actual API keys. If they match, the issue is with your provider account (e.g., billing). If they don't match, you have a copy-paste error in Render's environment variables."
+    })
+
 if __name__ == '__main__':
     print("🎯 IMAGE ANALYZER WEB UI")
     print("=" * 50)
