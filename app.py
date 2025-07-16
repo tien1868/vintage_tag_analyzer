@@ -354,6 +354,11 @@ def analyze():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint"""
+    return {"status": "healthy", "message": "Flask app is running"}
+
 if __name__ == '__main__':
     print("🎯 IMAGE ANALYZER WEB UI")
     print("=" * 50)
